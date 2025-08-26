@@ -5,7 +5,7 @@
     <meta charset="UTF-g" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rudybtz - Old Habbit Behind</title>
+    <title>Rudybtz - Old Habit</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -31,11 +31,16 @@
               'fade-in': {
                 '0%': { opacity: '0', transform: 'translateY(10px)' },
                 '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              'explode-in': {
+                '0%': { transform: 'scale(3) rotate(90deg)', opacity: '0', filter: 'blur(10px)' },
+                '100%': { transform: 'scale(1) rotate(0deg)', opacity: '1', filter: 'blur(0px)' },
               }
             },
             animation: {
               'glitch': 'glitch 0.3s linear infinite',
               'fade-in': 'fade-in 0.5s ease-out forwards',
+              'explode-in': 'explode-in 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards',
             },
             dropShadow: {
               'glow-purple': '0 0 10px rgba(159, 122, 234, 0.8)',
@@ -64,16 +69,48 @@
       ::-webkit-scrollbar-thumb:hover {
         background: #718096;
       }
+      .title-3d-heavy {
+        color: #e2e8f0;
+        text-shadow:
+          0px 1px 0px #c7d2fe,
+          0px 2px 0px #a5b4fc,
+          0px 3px 0px #818cf8,
+          0px 4px 0px #6366f1,
+          0px 5px 0px #111,
+          0 0 10px rgba(159, 122, 234, 0.6),
+          0 0 30px rgba(159, 122, 234, 0.4);
+      }
+      .title-3d-light {
+        color: #e2e8f0;
+         text-shadow:
+          0px 1px 0px #1e293b,
+          0 0 5px rgba(159, 122, 234, 0.3);
+      }
+       a.link-3d-hover {
+        transition: text-shadow 0.3s ease;
+      }
+      a.link-3d-hover:hover {
+        text-shadow:
+          0 0 8px rgba(159, 122, 234, 0.8),
+          0 0 12px rgba(255, 255, 255, 0.3);
+      }
     </style>
   <script type="importmap">
 {
   "imports": {
     "react/": "https://esm.sh/react@^19.1.0/",
     "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/client": "https://esm.sh/react-dom@^19.1.0/client",
     "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
     "@react-three/fiber": "https://esm.sh/@react-three/fiber@^9.2.0",
     "@react-three/drei": "https://esm.sh/@react-three/drei@^10.5.1",
-    "three": "https://esm.sh/three@^0.178.0"
+    "three": "https://esm.sh/three@^0.178.0",
+    "@react-three/postprocessing": "https://esm.sh/@react-three/postprocessing@^3.0.4",
+    "@google/genai": "https://esm.sh/@google/genai",
+    "firebase/app": "https://esm.sh/firebase@^10.12.2/app",
+    "firebase/auth": "https://esm.sh/firebase@^10.12.2/auth",
+    "firebase/firestore": "https://esm.sh/firebase@^10.12.2/firestore",
+    "firebase/": "https://esm.sh/firebase@^12.1.0/"
   }
 }
 </script>

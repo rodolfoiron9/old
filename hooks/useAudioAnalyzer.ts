@@ -50,9 +50,11 @@ export const useAudioAnalyzer = () => {
       // Cleanup on unmount
       if (sourceRef.current) {
         sourceRef.current.disconnect();
+        sourceRef.current = null;
       }
       if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
         audioContextRef.current.close();
+        audioContextRef.current = null;
       }
     };
   }, []);

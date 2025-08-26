@@ -15,7 +15,7 @@ export interface Track {
 }
 
 export interface CubeMaterial {
-  type: 'glass' | 'metallic' | 'hologram' | 'rock';
+  type: 'glass' | 'metallic' | 'hologram' | 'rock' | 'standard';
   color: string;
   roughness: number;
   metalness: number;
@@ -42,9 +42,33 @@ export interface LyricsStyle {
 
 export interface Preset {
   id: string;
-  name: string;
+  name:string;
   cubeMaterial: CubeMaterial;
   environment: Environment;
   bassReaction: BassReaction;
   lyricsStyle: LyricsStyle;
+}
+
+export interface GeneratedImage {
+    imageBytes: string;
+    mimeType: string;
+}
+
+export interface FileItem {
+  name: string;
+  folder: 'Music' | 'Images' | '3D Files' | 'Presets';
+  content?: string; // For presets JSON or image base64
+}
+
+export interface BlogPost {
+    id: string; // Use string for Firestore IDs
+    title: string;
+    date: string;
+    content: string;
+}
+
+export interface ProjectState {
+    tracks: Track[];
+    presets: Preset[];
+    blogPosts: BlogPost[];
 }
