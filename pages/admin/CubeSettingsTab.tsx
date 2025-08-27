@@ -1,7 +1,25 @@
 import React, { useState, Suspense } from 'react';
 import { Preset } from '../../types';
 import { Canvas } from '@react-three/fiber';
+// FIX: Replaced direct prop type imports with ThreeElements for compatibility with modern @react-three/fiber.
+import type { ThreeElements } from '@react-three/fiber';
 import { OrbitControls, Stars, Text } from '@react-three/drei';
+
+// FIX: Manually augment JSX namespace to include react-three-fiber components.
+// This is a workaround for a potential tsconfig issue that prevents automatic type recognition.
+// FIX: Updated prop types to use ThreeElements for compatibility with modern @react-three/fiber.
+declare global {
+    namespace JSX {
+        interface IntrinsicElements {
+            color: ThreeElements['color'];
+            ambientLight: ThreeElements['ambientLight'];
+            pointLight: ThreeElements['pointLight'];
+            mesh: ThreeElements['mesh'];
+            boxGeometry: ThreeElements['boxGeometry'];
+            meshStandardMaterial: ThreeElements['meshStandardMaterial'];
+        }
+    }
+}
 
 interface CubeSettingsTabProps {
     presets: Preset[];

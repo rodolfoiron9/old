@@ -32,10 +32,17 @@ export const saveProjectStateToFirestore = async (state: ProjectState): Promise<
     try {
         const batch = writeBatch(db);
 
-        // Save tracks and presets to the main settings document
-        const mainSettings = { tracks: state.tracks, presets: state.presets };
+        // Save tracks and presets to the main settings document.
+        // Sanitize the objects to prevent circular reference errors before sending to Firestore.
+        const mainSettings = { 
+            tracks: JSON.parse(JSON.stringify(state.tracks)),
+            presets: JSON.parse(JSON.stringify(state.presets)) 
+        };
         batch.set(settingsDocRef, mainSettings);
         
+        // Commit the batch to apply the changes on the server. This was missing.
+        await batch.commit();
+
         console.log("Project state (tracks, presets) saved to Firestore successfully.");
     } catch (error) {
         console.error("Error saving project state to Firestore:", error);

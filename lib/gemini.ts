@@ -98,7 +98,8 @@ export const generateImage = async (prompt: string): Promise<GeneratedImage> => 
     let response;
     try {
         response = await ai.models.generateImages({
-            model: 'imagen-3.0-generate-002',
+            // FIX: Updated model from deprecated 'imagen-3.0-generate-002' to 'imagen-4.0-generate-001' as per guidelines.
+            model: 'imagen-4.0-generate-001',
             prompt: `cinematic, abstract, cyberpunk art representing: "${prompt}"`,
             config: {
               numberOfImages: 1,

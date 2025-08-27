@@ -1,5 +1,8 @@
 import React, { useRef, useState, useEffect, Suspense, useMemo, useCallback } from 'react';
-import { Canvas, useFrame, extend } from '@react-three/fiber';
+// FIX: Removed `extend` and added type imports for manual JSX namespace augmentation.
+import { Canvas, useFrame } from '@react-three/fiber';
+// FIX: Replaced direct prop type imports with ThreeElements to align with modern @react-three/fiber, resolving missing type exports.
+import type { ThreeElements } from '@react-three/fiber';
 import { Text, Stars, MeshTransmissionMaterial, OrbitControls, useTexture, Html, Plane } from '@react-three/drei';
 import { EffectComposer, Glitch } from '@react-three/postprocessing';
 import * as THREE from 'three';
@@ -8,17 +11,24 @@ import { Preset, Track, Lyric, GeneratedImage } from '../types';
 import { useAudioAnalyzer } from '../hooks/useAudioAnalyzer';
 import { generateImage } from '../lib/gemini';
 
-extend({
-  group: THREE.Group,
-  mesh: THREE.Mesh,
-  boxGeometry: THREE.BoxGeometry,
-  meshStandardMaterial: THREE.MeshStandardMaterial,
-  meshBasicMaterial: THREE.MeshBasicMaterial,
-  color: THREE.Color,
-  fog: THREE.Fog,
-  ambientLight: THREE.AmbientLight,
-  pointLight: THREE.PointLight,
-});
+// FIX: Manually augment JSX namespace to include react-three-fiber components.
+// This is a workaround for a potential tsconfig issue that prevents automatic type recognition.
+// FIX: Updated prop types to use ThreeElements for compatibility with modern @react-three/fiber.
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      group: ThreeElements['group'];
+      mesh: ThreeElements['mesh'];
+      boxGeometry: ThreeElements['boxGeometry'];
+      meshStandardMaterial: ThreeElements['meshStandardMaterial'];
+      meshBasicMaterial: ThreeElements['meshBasicMaterial'];
+      color: ThreeElements['color'];
+      fog: ThreeElements['fog'];
+      ambientLight: ThreeElements['ambientLight'];
+      pointLight: ThreeElements['pointLight'];
+    }
+  }
+}
 
 const imageCache = new Map<string, string>();
 

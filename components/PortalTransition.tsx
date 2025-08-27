@@ -1,8 +1,22 @@
 import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
+// FIX: Replaced direct prop type imports with ThreeElements for compatibility with modern @react-three/fiber.
+import type { ThreeElements } from '@react-three/fiber';
 import { Tube, Stars } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
+
+// FIX: Manually augment JSX namespace to include react-three-fiber components.
+// This is a workaround for a potential tsconfig issue that prevents automatic type recognition.
+// FIX: Updated prop types to use ThreeElements for compatibility with modern @react-three/fiber.
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      group: ThreeElements['group'];
+      meshStandardMaterial: ThreeElements['meshStandardMaterial'];
+    }
+  }
+}
 
 const PortalTunnel: React.FC<{ onAnimationEnd: () => void }> = ({ onAnimationEnd }) => {
     const { camera } = useThree();
@@ -32,8 +46,10 @@ const PortalTunnel: React.FC<{ onAnimationEnd: () => void }> = ({ onAnimationEnd
             return;
         }
 
-        const newPos = curve.getPointAt(progress.current);
-        const lookAtPos = curve.getPointAt(Math.min(progress.current + 0.01, 1));
+        // FIX: Changed `getPointAt` to `getPoint` as per THREE.Curve method signature.
+        const newPos = curve.getPoint(progress.current);
+        // FIX: Changed `getPointAt` to `getPoint` as per THREE.Curve method signature.
+        const lookAtPos = curve.getPoint(Math.min(progress.current + 0.01, 1));
         
         camera.position.copy(newPos);
         camera.lookAt(lookAtPos);
