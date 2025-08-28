@@ -1,7 +1,7 @@
 
-import { doc, getDoc, setDoc, collection, getDocs, query, writeBatch } from "firebase/firestore";
 import { db } from "./firebase";
-import { ProjectState, BlogPost } from "../types";
+import { doc, getDoc, setDoc, collection, getDocs, writeBatch } from "firebase/firestore";
+import { ProjectState, BlogPost, Preset, Track, FaceContent } from "../types";
 import { TRACKS as defaultTracks, PRESETS as defaultPresets } from '../constants';
 
 const defaultBlogPosts: BlogPost[] = [
@@ -28,20 +28,90 @@ export const defaultProjectState: ProjectState = {
 const settingsDocRef = doc(db, "project", "settings");
 const blogCollectionRef = collection(db, "blogPosts");
 
+// Helper to create a clean, serializable copy of a FaceContent object.
+const createSerializableFace = (face: FaceContent): FaceContent => {
+    const cleanFace: Partial<FaceContent> = { type: face.type };
+    if (face.text !== undefined) cleanFace.text = face.text;
+    if (face.fields !== undefined) cleanFace.fields = [...face.fields];
+    if (face.elements !== undefined) cleanFace.elements = [...face.elements];
+    if (face.buttons !== undefined) cleanFace.buttons = [...face.buttons];
+    return cleanFace as FaceContent;
+};
+
+
+// Creates a deep, clean copy of the state to ensure it's serializable
+// before sending it to Firestore. This prevents "converting circular structure"
+// errors by explicitly copying only the properties defined in the types,
+// ignoring any complex objects that might have been attached to the live state.
+const createSerializableState = (state: ProjectState): { tracks: Track[], presets: Preset[] } => {
+    return {
+        tracks: state.tracks.map(track => ({
+            id: track.id,
+            title: track.title,
+            artist: track.artist,
+            description: track.description,
+            audioSrc: track.audioSrc,
+            cover: track.cover,
+            lyrics: track.lyrics.map(lyric => ({ time: lyric.time, word: lyric.word }))
+        })),
+        presets: state.presets.map(p => ({
+            id: p.id,
+            name: p.name,
+            cubeMaterial: {
+                type: p.cubeMaterial.type,
+                color: p.cubeMaterial.color,
+                roughness: p.cubeMaterial.roughness,
+                metalness: p.cubeMaterial.metalness,
+                opacity: p.cubeMaterial.opacity,
+            },
+            wireframe: {
+                enabled: p.wireframe.enabled,
+                color: p.wireframe.color,
+                thickness: p.wireframe.thickness,
+            },
+            edges: {
+                glow: p.edges.glow,
+                cornerRadius: p.edges.cornerRadius,
+            },
+            faces: {
+                front: createSerializableFace(p.faces.front),
+                back: createSerializableFace(p.faces.back),
+                left: createSerializableFace(p.faces.left),
+                right: createSerializableFace(p.faces.right),
+                top: createSerializableFace(p.faces.top),
+                bottom: createSerializableFace(p.faces.bottom),
+            },
+            effects: {
+                bassFracture: p.effects.bassFracture,
+                chorusBloom: p.effects.chorusBloom,
+            },
+            environment: {
+                bgColor: p.environment.bgColor,
+                fogColor: p.environment.fogColor,
+                particleColor: p.environment.particleColor,
+            },
+            bassReaction: {
+                scale: p.bassReaction.scale,
+                rotation: p.bassReaction.rotation,
+                glitch: p.bassReaction.glitch,
+            },
+            lyricsStyle: {
+                font: p.lyricsStyle.font,
+                color: p.lyricsStyle.color,
+                glowColor: p.lyricsStyle.glowColor,
+            }
+        }))
+    };
+};
+
+
 export const saveProjectStateToFirestore = async (state: ProjectState): Promise<void> => {
     try {
-        const batch = writeBatch(db);
-
-        // Save tracks and presets to the main settings document.
-        // Sanitize the objects to prevent circular reference errors before sending to Firestore.
-        const mainSettings = { 
-            tracks: JSON.parse(JSON.stringify(state.tracks)),
-            presets: JSON.parse(JSON.stringify(state.presets)) 
-        };
-        batch.set(settingsDocRef, mainSettings);
+        // We only want to save tracks and presets to the main settings document.
+        // Blog posts are handled separately in their own collection.
+        const settingsToSave = createSerializableState(state);
         
-        // Commit the batch to apply the changes on the server. This was missing.
-        await batch.commit();
+        await setDoc(settingsDocRef, settingsToSave);
 
         console.log("Project state (tracks, presets) saved to Firestore successfully.");
     } catch (error) {
@@ -53,8 +123,7 @@ export const saveProjectStateToFirestore = async (state: ProjectState): Promise<
 export const loadProjectStateFromFirestore = async (): Promise<ProjectState> => {
     try {
         const settingsSnap = await getDoc(settingsDocRef);
-        const blogQuery = query(blogCollectionRef);
-        const blogSnap = await getDocs(blogQuery);
+        const blogSnap = await getDocs(blogCollectionRef);
         
         let loadedState: ProjectState = { ...defaultProjectState };
 
@@ -72,8 +141,8 @@ export const loadProjectStateFromFirestore = async (): Promise<ProjectState> => 
             // If no blog posts, initialize them
             const batch = writeBatch(db);
             defaultBlogPosts.forEach(post => {
-                const docRef = doc(db, "blogPosts", post.id);
-                batch.set(docRef, { title: post.title, date: post.date, content: post.content });
+                const postDocRef = doc(db, "blogPosts", post.id);
+                batch.set(postDocRef, { title: post.title, date: post.date, content: post.content });
             });
             await batch.commit();
         }

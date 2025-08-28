@@ -20,6 +20,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     setError('');
 
     try {
+      // Use the v9 modular syntax for signing in
       await signInWithEmailAndPassword(auth, email, password);
       onLoginSuccess();
     } catch (err: any) {

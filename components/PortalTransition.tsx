@@ -4,7 +4,8 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import type { ThreeElements } from '@react-three/fiber';
 import { Tube, Stars } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
-import * as THREE from 'three';
+// FIX: Replace `* as THREE` with named imports from `three` to resolve type errors.
+import { Group, Curve, Vector3, BackSide } from 'three';
 
 // FIX: Manually augment JSX namespace to include react-three-fiber components.
 // This is a workaround for a potential tsconfig issue that prevents automatic type recognition.
@@ -20,11 +21,13 @@ declare global {
 
 const PortalTunnel: React.FC<{ onAnimationEnd: () => void }> = ({ onAnimationEnd }) => {
     const { camera } = useThree();
-    const group = useRef<THREE.Group>(null!);
+    // FIX: Changed THREE.Group to Group.
+    const group = useRef<Group>(null!);
     const progress = useRef(0);
 
     const curve = useMemo(() => {
-        class CustomSinCurve extends THREE.Curve<THREE.Vector3> {
+        // FIX: Changed THREE.Curve and THREE.Vector3 to named imports.
+        class CustomSinCurve extends Curve<Vector3> {
             constructor(public scale = 1) {
                 super();
             }
@@ -32,7 +35,8 @@ const PortalTunnel: React.FC<{ onAnimationEnd: () => void }> = ({ onAnimationEnd
                 const tx = t * 3 - 1.5;
                 const ty = Math.sin(2 * Math.PI * t);
                 const tz = 0;
-                return new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale).setZ(-t * 30);
+                // FIX: Changed THREE.Vector3 to Vector3.
+                return new Vector3(tx, ty, tz).multiplyScalar(this.scale).setZ(-t * 30);
             }
         }
         return new CustomSinCurve(2);
@@ -64,7 +68,8 @@ const PortalTunnel: React.FC<{ onAnimationEnd: () => void }> = ({ onAnimationEnd
             <Tube args={[curve, 64, 0.5, 8, false]}>
                 <meshStandardMaterial
                     color="#9f7aea"
-                    side={THREE.BackSide}
+                    // FIX: Changed THREE.BackSide to BackSide.
+                    side={BackSide}
                     wireframe
                     emissive="#9f7aea"
                     emissiveIntensity={2}

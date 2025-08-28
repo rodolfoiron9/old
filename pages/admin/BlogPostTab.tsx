@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { collection, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { doc, updateDoc, addDoc, deleteDoc, collection } from 'firebase/firestore';
 import { BlogPost } from '../../types';
 
 interface BlogPostTabProps {

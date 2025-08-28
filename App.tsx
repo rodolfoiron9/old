@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { User, onAuthStateChanged } from 'firebase/auth';
-import { auth } from './lib/firebase';
+// import { User, onAuthStateChanged } from 'firebase/auth'; // Auth disabled for testing
+// import { auth } from './lib/firebase'; // Auth disabled for testing
 import { Track, Preset, ProjectState } from './types';
 import { SpotifyIcon, AppleMusicIcon, YoutubeIcon, InstagramIcon, TiktokIcon } from './constants';
 import { AudioVisualizer } from './components/AudioVisualizer';
@@ -14,7 +14,7 @@ import Contact from './pages/Contact';
 import Admin from './pages/Admin';
 import Title3D from './components/Title3D';
 import { Portal } from './components/PortalTransition';
-import Login from './components/Login';
+// import Login from './components/Login'; // Auth disabled for testing
 import { remixPreset } from './lib/gemini';
 import { loadProjectStateFromFirestore, defaultProjectState } from './lib/settingsManager';
 
@@ -154,9 +154,9 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [isLoading, setIsLoading] = useState(true);
   
-  // Auth state
-  const [user, setUser] = useState<User | null>(null);
-  const [authChecked, setAuthChecked] = useState(false);
+  // Auth state - TEMPORARILY DISABLED for testing
+  // const [user, setUser] = useState<User | null>(null);
+  // const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     // Load data from Firestore on initial mount
@@ -169,13 +169,15 @@ export default function App() {
     };
     loadData();
 
-    // Listen for auth state changes
+    // Listen for auth state changes - TEMPORARILY DISABLED for testing
+    /*
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setAuthChecked(true);
     });
 
     return () => unsubscribe(); // Cleanup subscription
+    */
   }, []);
 
   const handleSetProjectState = (newState: ProjectState) => {
@@ -211,6 +213,14 @@ export default function App() {
     const nextIndex = (currentIndex + 1) % tracks.length;
     setActiveTrack(tracks[nextIndex]);
   }
+  
+  const handlePrevTrack = () => {
+    if(!activeTrack) return;
+    const tracks = projectState.tracks;
+    const currentIndex = tracks.findIndex(t => t.id === activeTrack.id);
+    const prevIndex = (currentIndex - 1 + tracks.length) % tracks.length;
+    setActiveTrack(tracks[prevIndex]);
+  }
 
   const handlePortalComplete = () => {
     setAppState('visualizer');
@@ -226,7 +236,7 @@ export default function App() {
       }
   };
   
-  if (!authChecked || isLoading) {
+  if (isLoading) { // Auth check removed for testing
       return (
           <div className="bg-brand-bg h-screen flex items-center justify-center">
               <div className="w-16 h-16 border-4 border-brand-purple border-t-transparent rounded-full animate-spin"></div>
@@ -236,11 +246,9 @@ export default function App() {
 
   const renderPage = () => {
     if (currentPage === 'admin') {
-      if (user) {
-        return <Admin projectState={projectState} setProjectState={handleSetProjectState} />;
-      } else {
-        return <Login onLoginSuccess={() => setUser(auth.currentUser)} />;
-      }
+      // NOTE: Auth check is temporarily disabled for testing.
+      // The Admin panel is now directly accessible.
+      return <Admin projectState={projectState} setProjectState={handleSetProjectState} />;
     }
     
     switch (currentPage) {
@@ -278,6 +286,7 @@ export default function App() {
             onPresetChange={setActivePreset}
             onClose={handleCloseVisualizer}
             onNext={handleNextTrack}
+            onPrev={handlePrevTrack}
             onRemix={handleRemixVisuals}
           />
       )}
