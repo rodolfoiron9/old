@@ -1,7 +1,7 @@
 import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-// FIX: Replaced direct prop type imports with ThreeElements for compatibility with modern @react-three/fiber.
-import type { ThreeElements } from '@react-three/fiber';
+// FIX: Use namespace import for robust type augmentation.
+import * as ReactThreeFiber from '@react-three/fiber';
 import { Tube, Stars } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 // FIX: Replace `* as THREE` with named imports from `three` to resolve type errors.
@@ -9,13 +9,11 @@ import { Group, Curve, Vector3, BackSide } from 'three';
 
 // FIX: Manually augment JSX namespace to include react-three-fiber components.
 // This is a workaround for a potential tsconfig issue that prevents automatic type recognition.
-// FIX: Updated prop types to use ThreeElements for compatibility with modern @react-three/fiber.
 declare global {
   namespace JSX {
-    interface IntrinsicElements {
-      group: ThreeElements['group'];
-      meshStandardMaterial: ThreeElements['meshStandardMaterial'];
-    }
+    // FIX: Use explicit namespace to ensure types are resolved for JSX intrinsics.
+    // FIX: Corrected the type from `IntrinsicElements` to `ThreeElements` to match the export from @react-three/fiber.
+    interface IntrinsicElements extends ReactThreeFiber.ThreeElements {}
   }
 }
 
